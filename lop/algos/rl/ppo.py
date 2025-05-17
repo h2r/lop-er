@@ -6,7 +6,6 @@ from lop.algos.gntRedo import GnTredo
 from lop.algos.rl.learner import Learner
 import torch.nn.functional as F
 
-
 class PPO(Learner):
     """
     Implementation of PPO
@@ -142,9 +141,12 @@ class PPO(Learner):
                 p_loss += v_loss # no value loss weight applied
                 self.opt.zero_grad()
                 p_loss.backward()
+
                 if self.max_grad_norm > 0:
                     nn.utils.clip_grad_norm_(list(self.pol.parameters()) + list(self.vf.parameters()), self.max_grad_norm)
                 self.opt.step()
+                
+                # S&P
                 if self.to_perturb:
                     self.perturb(net=self.pol.mean_net)
                     self.perturb(net=self.vf.v_net)
@@ -162,6 +164,7 @@ class PPO(Learner):
                         elif isinstance(self.pol_gnt, GnTredo):
                             features_history = torch.stack(self.vf.get_activations()).permute(1, 0, 2)
                             self.val_gnt.gen_and_test(features_history=features_history)
+
         idx, change = 0, 0
         for layer in self.pol.mean_net:
             if type(layer) is torch.nn.modules.linear.Linear:

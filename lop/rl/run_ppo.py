@@ -226,6 +226,9 @@ def main():
     epi_steps = 0
     o = env.reset()
     print('start_step:', start_step)
+    
+    debugging = False
+    last_ret_idx = 0
     # Interaction loop
     for step in range(start_step, n_steps):
         a, logp, dist, new_features = agent.get_action(o)
@@ -234,12 +237,26 @@ def main():
         op_ = op
         val_logs = agent.log_update(o, a, r, op_, logp, dist, done)
         # Logging
+        
         with torch.no_grad():
             if 'weight_change' in to_log and 'weight_change' in val_logs.keys(): weight_change.append(val_logs['weight_change'])
             if 'mu' in to_log: mu[step] = a
             if step % 1000 == 0:
+                if(debugging):
+                    print(f"========== Step: {step} ==========")
+                    if rets: 
+                        rewards_to_average = rets[last_ret_idx:]
+                        current_avg_reward = np.mean(rewards_to_average)
+                        print(f"Average Reward (last {len(rewards_to_average)} episodes): {current_avg_reward:.2f}")
+                        last_ret_idx = len(rets)
+                    elif step > 0: # Avoid printing "no episodes" at step 0 if the loop just started
+                        print(f"Average Reward: No episodes completed yet.")
+
                 if step % 10000 == 0 and 'stable_rank' in to_log:
                     _, _, _, stable_rank[step//10000] = compute_matrix_rank_summaries(m=short_term_feature_activity[:, -1, :], use_scipy=True)
+                    if(debugging):
+                        print(f"Stable Rank (last hidden layer, over last 1000 steps of activity): {stable_rank[step//10000]:.2f}")
+                    
                 if 'pol_features_activity' in to_log:
                     pol_features_activity[step//1000] = (short_term_feature_activity>0).float().mean(dim=0)
                     short_term_feature_activity *= 0

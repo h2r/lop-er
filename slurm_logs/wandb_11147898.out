@@ -1,0 +1,15 @@
+## SLURM PROLOG ###############################################################
+##    Job ID : 11147898
+##  Job Name : batch.sh
+##  Nodelist : gpu2006
+##      CPUs : 1
+##  Mem/Node : 65536 MB
+## Directory : /oscar/home/nhe6/Documents/loss-of-plasticity
+##   Job Started : Thu Apr 24 12:34:55 PM EDT 2025
+###############################################################################
+Traceback (most recent call last):
+  File "lop/permuted_mnist/online_expr.py", line 217, in <module>
+    sys.exit(main(sys.argv[1:]))
+  File "lop/permuted_mnist/online_expr.py", line 210, in main
+    with open(cfg_file, 'r') as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'temp_cfg/0.json'

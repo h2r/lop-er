@@ -1,0 +1,91 @@
+## SLURM PROLOG ###############################################################
+##    Job ID : 11199297
+##  Job Name : batch.sh
+##  Nodelist : gpu2006
+##      CPUs : 1
+##  Mem/Node : 65536 MB
+## Directory : /oscar/home/nhe6/Documents/loss-of-plasticity
+##   Job Started : Tue Apr 29 11:24:03 AM EDT 2025
+###############################################################################
+Compiling /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/cymj.pyx because it changed.
+[1/1] Cythonizing /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/cymj.pyx
+running build_ext
+building 'mujoco_py.cymj' extension
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home/nhe6
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home/nhe6/Documents
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home/nhe6/Documents/loss-of-plasticity
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home/nhe6/Documents/loss-of-plasticity/.venv
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py
+creating /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/gl
+gcc -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -DOPENSSL_NO_SSL3 -fPIC -I.venv/lib/python3.8/site-packages/mujoco_py -I/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py -I/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/binaries/linux/mujoco210/include -I/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/numpy/core/include -I/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/include -I/users/nhe6/.pyenv/versions/3.8.16/include/python3.8 -c /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/cymj.c -o /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/cymj.o -fopenmp -w
+gcc -Wno-unused-result -Wsign-compare -DNDEBUG -g -fwrapv -O3 -Wall -DOPENSSL_NO_SSL3 -fPIC -I.venv/lib/python3.8/site-packages/mujoco_py -I/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py -I/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/binaries/linux/mujoco210/include -I/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/numpy/core/include -I/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/include -I/users/nhe6/.pyenv/versions/3.8.16/include/python3.8 -c /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/gl/osmesashim.c -o /oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/generated/_pyxbld_2.0.2.13_38_linuxcpuextensionbuilder/temp.linux-x86_64-3.8/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/gl/osmesashim.o -fopenmp -w
+/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/gl/osmesashim.c:1:10: fatal error: GL/osmesa.h: No such file or directory
+    1 | #include <GL/osmesa.h>
+      |          ^~~~~~~~~~~~~
+compilation terminated.
+Traceback (most recent call last):
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/unixccompiler.py", line 117, in _compile
+    self.spawn(compiler_so + cc_args + [src, '-o', obj] +
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/ccompiler.py", line 910, in spawn
+    spawn(cmd, dry_run=self.dry_run)
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/spawn.py", line 36, in spawn
+    _spawn_posix(cmd, search_path, dry_run=dry_run)
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/spawn.py", line 157, in _spawn_posix
+    raise DistutilsExecError(
+distutils.errors.DistutilsExecError: command 'gcc' failed with exit status 1
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "lop/rl/run_ppo.py", line 12, in <module>
+    import lop.envs
+  File "/users/nhe6/Documents/loss-of-plasticity/lop/envs/__init__.py", line 1, in <module>
+    from lop.envs.slippery_ant import SlipperyAntEnv, SlipperyAntEnv3
+  File "/users/nhe6/Documents/loss-of-plasticity/lop/envs/slippery_ant.py", line 6, in <module>
+    from gym.envs.mujoco.ant import AntEnv
+  File "/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/gym/envs/mujoco/__init__.py", line 1, in <module>
+    from gym.envs.mujoco.mujoco_env import MujocoEnv
+  File "/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/gym/envs/mujoco/mujoco_env.py", line 12, in <module>
+    import mujoco_py
+  File "/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/__init__.py", line 15, in <module>
+    from mujoco_py.builder import cymj, ignore_mujoco_warnings, functions, MujocoException
+  File "/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/builder.py", line 499, in <module>
+    cymj = load_cython_ext(mujoco_path)
+  File "/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/builder.py", line 105, in load_cython_ext
+    cext_so_path = builder.build()
+  File "/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/builder.py", line 221, in build
+    built_so_file_path = self._build_impl()
+  File "/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/builder.py", line 273, in _build_impl
+    so_file_path = super()._build_impl()
+  File "/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/builder.py", line 244, in _build_impl
+    dist.run_commands()
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/dist.py", line 966, in run_commands
+    self.run_command(cmd)
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/dist.py", line 985, in run_command
+    cmd_obj.run()
+  File "/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/Cython/Distutils/old_build_ext.py", line 186, in run
+    _build_ext.build_ext.run(self)
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/command/build_ext.py", line 340, in run
+    self.build_extensions()
+  File "/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/mujoco_py/builder.py", line 144, in build_extensions
+    build_ext.build_extensions(self)
+  File "/oscar/home/nhe6/Documents/loss-of-plasticity/.venv/lib/python3.8/site-packages/Cython/Distutils/old_build_ext.py", line 195, in build_extensions
+    _build_ext.build_ext.build_extensions(self)
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/command/build_ext.py", line 449, in build_extensions
+    self._build_extensions_serial()
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/command/build_ext.py", line 474, in _build_extensions_serial
+    self.build_extension(ext)
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/command/build_ext.py", line 528, in build_extension
+    objects = self.compiler.compile(sources,
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/ccompiler.py", line 574, in compile
+    self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+  File "/users/nhe6/.pyenv/versions/3.8.16/lib/python3.8/distutils/unixccompiler.py", line 120, in _compile
+    raise CompileError(msg)
+distutils.errors.CompileError: command 'gcc' failed with exit status 1

@@ -1,0 +1,9 @@
+## SLURM PROLOG ###############################################################
+##    Job ID : 11147883
+##  Job Name : batch.sh
+##  Nodelist : gpu2006
+##      CPUs : 1
+##  Mem/Node : 65536 MB
+## Directory : /oscar/home/nhe6/Documents/loss-of-plasticity
+##   Job Started : Thu Apr 24 12:31:58 PM EDT 2025
+###############################################################################

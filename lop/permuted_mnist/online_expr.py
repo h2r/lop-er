@@ -50,7 +50,7 @@ def online_expr(params: {}):
         if params['use_gpu'] == 1:
             use_gpu = 1
             dev = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-            if dev == torch.device("cuda"):    torch.set_default_tensor_type('torch.cuda.FloatTensor')
+            if dev == torch.device("cuda"):    torch.set_default_dtype(torch.float32)
     if 'to_perturb' in params.keys():
         to_perturb = params['to_perturb']
     if 'perturb_scale' in params.keys():
@@ -73,7 +73,9 @@ def online_expr(params: {}):
     input_size = 784
     num_hidden_layers = num_hidden_layers
     net = DeepFFNN(input_size=input_size, num_features=num_features, num_outputs=classes_per_task,
-                   num_hidden_layers=num_hidden_layers)
+                   num_hidden_layers=num_hidden_layers).to(dev)
+    
+    print(dev)
 
     if agent_type == 'linear':
         net = MyLinear(
@@ -138,6 +140,7 @@ def online_expr(params: {}):
         data_permutation = np.random.permutation(examples_per_task)
         x, y = x[data_permutation], y[data_permutation]
 
+        print(f"task_idx: {task_idx}")
         if agent_type != 'linear':
             with torch.no_grad():
                 new_idx = int(iter / rank_measure_period)
