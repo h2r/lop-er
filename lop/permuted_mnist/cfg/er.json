@@ -5,14 +5,17 @@
   "num_runs":  10,
   "num_tasks": 800,
   "use_gpu": 1,
-  "data_dir": "data/l2/",
+  "data_dir": "data/er/",
   "to_log": true,
 
   "_comment_2_": "Learner parameters",
-  "agent": "bp",
+  "agent": "er",
   "opt": "sgd",
   "num_features": 2000,
   "num_hidden_layers": 3,
   "step_size": 0.003,
-  "weight_decay": [1e-5]
+  "er_lr": 0.001,
+  "er_step": 1,
+  "er_batch": 100,
+  "weight_decay": [1e-3, 1e-4, 1e-5]
 }

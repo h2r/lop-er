@@ -83,7 +83,7 @@ def online_expr(params: {}):
         )
         net.layers_to_log = []
 
-    if agent_type in ['bp', 'linear', "l2"]:
+    if agent_type in ['bp', 'linear', "l2", "er"]:
         learner = Backprop(
             net=net,
             step_size=step_size,
@@ -150,16 +150,25 @@ def online_expr(params: {}):
                     approximate_ranks[new_idx][rep_layer_idx], approximate_ranks_abs[new_idx][rep_layer_idx] = \
                         compute_matrix_rank_summaries(m=m[rep_layer_idx], use_scipy=True)
                     dead_neurons[new_idx][rep_layer_idx] = (m[rep_layer_idx].abs().sum(dim=0) == 0).sum()
-                print('approximate rank: ', approximate_ranks[new_idx], ', dead neurons: ', dead_neurons[new_idx])
+                # print('approximate rank: ', approximate_ranks[new_idx], ', dead neurons: ', dead_neurons[new_idx])
+                print("effective rank: ", effective_ranks[new_idx], ", approximate rank: ", approximate_ranks[new_idx], ", dead neurons: ", dead_neurons[new_idx])
 
+        buffer_x = []
         for start_idx in tqdm(range(0, change_after, mini_batch_size)):
             start_idx = start_idx % examples_per_task
             batch_x = x[start_idx: start_idx+mini_batch_size]
             batch_y = y[start_idx: start_idx+mini_batch_size]
 
+            buffer_x.append(batch_x)
+
             # train the network
             loss, network_output = learner.learn(x=batch_x, target=batch_y)
 
+            if agent_type in ['er'] and (len(buffer_x) % params['er_batch'] == 0):
+                rank_update_data = torch.cat(buffer_x, dim=0)
+                learner.maximize_effective_rank(rank_update_data, steps=params['er_step'])
+                buffer_x = []
+            
             if to_log and agent_type != 'linear':
                 for idx, layer_idx in enumerate(learner.net.layers_to_log):
                     weight_mag_sum[iter][idx] = learner.net.layers[layer_idx].weight.data.abs().sum()
