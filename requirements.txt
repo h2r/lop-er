@@ -1,0 +1,8 @@
+"jax[cuda12]==0.5.3"
+flax==0.10.1
+numpy==2.1.3
+optax==0.2.3
+distrax==0.1.5
+gymnax==0.0.8
+wandb==0.19.1
+brax==0.12.1
