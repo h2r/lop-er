@@ -9,20 +9,35 @@ import matplotlib.pyplot as plt
 
 def bootstrapped_val(x, stride, total_steps, confidence_level=0.95, to_bootstrap=True):
     num_runs = len(x)
-    avg_ret = np.zeros(total_steps // stride)
-    steps = np.arange(stride, total_steps + stride, stride)
-    min_rets, max_rets = np.zeros(total_steps // stride), np.zeros(total_steps // stride)
-    boot_strapped_ret_low, boot_strapped_ret_high = np.zeros(total_steps // stride), np.zeros(total_steps // stride)
-    for i in tqdm(range(0, total_steps // stride)):
+    # Find actual maximum steps across all runs
+    actual_max_steps = max([len(xi) for xi in x])
+    total_steps = min(int(total_steps), actual_max_steps)
+    stride = int(stride)
+    
+    # Calculate number of points to ensure consistent dimensions
+    num_points = total_steps // stride
+    avg_ret = np.zeros(num_points)
+    steps = np.arange(stride, total_steps + 1, stride)[:num_points]  # Ensure consistent length
+    min_rets, max_rets = np.zeros(num_points), np.zeros(num_points)
+    boot_strapped_ret_low, boot_strapped_ret_high = np.zeros(num_points), np.zeros(num_points)
+    
+    # Disable bootstrapping if only one run
+    if num_runs == 1:
+        to_bootstrap = False
+    
+    for i in tqdm(range(num_points)):
         rets = []
         for run in range(num_runs):
             rets.append(np.abs(x[run][i*stride:(i+1)*stride]).mean())
         rets = np.array([rets])
         avg_ret[i] = rets.mean()
         min_rets[i], max_rets[i] = rets.min(), rets.max()
-        if to_bootstrap and num_runs>1:
+        if to_bootstrap and num_runs > 1:
             bos = scipy.stats.bootstrap(data=(rets[0, :],), statistic=np.mean, confidence_level=confidence_level)
             boot_strapped_ret_low[i], boot_strapped_ret_high[i] = bos.confidence_interval.low, bos.confidence_interval.high
+        else:
+            # For single run, use the same value for confidence interval
+            boot_strapped_ret_low[i] = boot_strapped_ret_high[i] = avg_ret[i]
     return steps, avg_ret, min_rets, max_rets, boot_strapped_ret_low, boot_strapped_ret_high
 
 
@@ -83,18 +98,29 @@ def main():
     cfg_file1 = f'../cfg/{env}/cbp.yml'
     cfg_file2 = f'../cfg/{env}/ns.yml'
     cfg_file3 = f'../cfg/{env}/l2.yml'
+    cfg_file4 = f'../cfg/{env}/er.yml'
 
-    cfg_files = [cfg_file, cfg_file1, cfg_file2, cfg_file3]
-    colors = ['C3', 'C0', 'C1', 'C4']
+    # cfg_files = [cfg_file, cfg_file1, cfg_file2, cfg_file3, cfg_file4]
+    # colors = ['C3', 'C0', 'C1', 'C4', 'C5']
+    cfg_files = [cfg_file3, cfg_file4]
+    colors = ['C3', 'C4']
     cfgs = []
     for file in cfg_files:
         if file == '':  continue
-        cfgs.append(yaml.safe_load(open(file)))
+        cfg = yaml.safe_load(open(file))
+        if 'label' not in cfg.keys(): cfg['label'] = ''
+        cfgs.append(cfg)
 
-    num_runs = 30
+    num_runs = 1
     runs = [i + 0 for i in range(0, num_runs)]
     m = 100 * 1000
-    ts = 50 * 1000 * 1000
+    ts = 50 * 1000 * 1000  # This will be overridden by n_steps from config
+    
+    # Get n_steps from the first config file and convert from scientific notation
+    if len(cfgs) > 0:
+        n_steps_str = cfgs[0].get('n_steps', str(ts))
+        ts = float(n_steps_str)  # This will handle scientific notation like "25e6"
+    
     fig, ax = plt.subplots()
 
     if to_plot == 'weight_change':
@@ -108,6 +134,7 @@ def main():
         plot_for_one_cfg(cfg=cfg, runs=runs, m=m, ts=ts, color=colors[idx], to_plot=to_plot)
 
     xticks = [0, 0.5 * ts, ts]
+    xticklabels = [f'{int(x/1e6)}M' for x in xticks]
 
     if to_plot == 'return': yticks = [0, 500, 1000, 1500, 2000, 5000]
     elif to_plot in ['pol_features', 'action_output', 'pol_features_activity']:  yticks = [0, 0.2, 0.4, 0.6]
@@ -122,11 +149,11 @@ def main():
 
     fontsize = 15
     ax.set_xticks(xticks)
-    ax.set_xticklabels(['' for _ in xticks], fontsize=fontsize)
+    ax.set_xticklabels(xticklabels, fontsize=fontsize)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.set_yticks(yticks)
-    ax.set_yticklabels(['' for _ in yticks], fontsize=fontsize)
+    ax.set_yticklabels([str(y) for y in yticks], fontsize=fontsize)
     ax.set_ylim(yticks[0], yticks[-1])
 
     ax.yaxis.grid()
@@ -137,4 +164,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

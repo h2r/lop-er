@@ -133,9 +133,9 @@ class PPO(Learner):
 
     def maximize_effective_rank(self, features, is_policy=True, steps=1):
         if is_policy:
-            opt = self.opt_pol_erank
+            opt = self.pol_erank_opt
         else:   
-            opt = self.opt_val_erank
+            opt = self.val_erank_opt
             
         for i in range(steps):
             opt.zero_grad()
@@ -161,7 +161,7 @@ class PPO(Learner):
             opt.step()
 
         # return the final erank value (detached)
-        return loss_erank.detach(), grad_norm
+        return -loss_erank.detach(), grad_norm
 
 
     def learn(self):
@@ -208,7 +208,7 @@ class PPO(Learner):
                     if param.grad is not None:
                         pol_grad_norm += param.grad.data.norm(2).item() ** 2
                 pol_grad_norm = pol_grad_norm ** 0.5
-                print(f'Policy network gradient norm: {pol_grad_norm:.4f}')
+                # print(f'Policy network gradient norm: {pol_grad_norm:.4f}')
 
                 # Calculate value network gradient norm  
                 val_grad_norm = 0.0
@@ -216,7 +216,7 @@ class PPO(Learner):
                     if param.grad is not None:
                         val_grad_norm += param.grad.data.norm(2).item() ** 2
                 val_grad_norm = val_grad_norm ** 0.5
-                print(f'Value network gradient norm: {val_grad_norm:.4f}')
+                # print(f'Value network gradient norm: {val_grad_norm:.4f}')
 
                 if self.max_grad_norm > 0:
                     nn.utils.clip_grad_norm_(list(self.pol.parameters()) + list(self.vf.parameters()), self.max_grad_norm)
@@ -250,12 +250,15 @@ class PPO(Learner):
                     # Policy network effective rank maximization
                     pol_feats = self.pol.get_differentiable_activations(os[ind])
                     pol_erank, pol_er_grad_norm = self.maximize_effective_rank(pol_feats, is_policy=True, steps=self.er_step)
-                    print(f'Policy network effective rank: {pol_erank:.4f}, gradient norm: {pol_er_grad_norm:.4f}')
+                    # print(f'Policy network effective rank: {pol_erank:.4f}, gradient norm: {pol_er_grad_norm:.4f}')
                     
                     # Value network effective rank maximization  
                     val_feats = self.vf.get_differentiable_activations(os[ind])
                     val_erank, val_er_grad_norm = self.maximize_effective_rank(val_feats, is_policy=False, steps=self.er_step)
-                    print(f'Value network effective rank: {val_erank:.4f}, gradient norm: {val_er_grad_norm:.4f}')
+                    # print(f'Value network effective rank: {val_erank:.4f}, gradient norm: {val_er_grad_norm:.4f}')
+
+            # print(f'Policy acc_grad:{pol_grad_norm:.4f} Policy er_grad:{pol_er_grad_norm:.4f} Ratio:{pol_er_grad_norm * 8 * 1000 / pol_grad_norm:.4f}')
+            # print(f'Value acc_grad:{val_grad_norm:.4f} Value er_grad:{val_er_grad_norm:.4f} Ratio:{val_er_grad_norm * 8 * 1000 / val_grad_norm:.4f}')
 
         # Calculate gradient norm
         idx, change = 0, 0
