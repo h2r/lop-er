@@ -4,37 +4,66 @@ from torch import optim
 
 
 class Backprop(object):
-    def __init__(self, net, step_size=0.001, erank_step_size=0.001, loss='mse', opt='sgd', beta_1=0.9, beta_2=0.999, weight_decay=0.0,
-                 to_perturb=False, perturb_scale=0.1, device='cpu', momentum=0):
+    def __init__(
+        self,
+        net,
+        step_size=0.001,
+        erank_step_size=0.001,
+        loss="mse",
+        opt="sgd",
+        beta_1=0.9,
+        beta_2=0.999,
+        weight_decay=0.0,
+        to_perturb=False,
+        perturb_scale=0.1,
+        device="cpu",
+        momentum=0,
+    ):
         self.net = net
         self.to_perturb = to_perturb
         self.perturb_scale = perturb_scale
         self.device = device
 
         # define the optimizer
-        if opt == 'sgd':
-            self.opt = optim.SGD(self.net.parameters(), lr=step_size, weight_decay=weight_decay, momentum=momentum)
-        elif opt == 'adam':
-            self.opt = optim.Adam(self.net.parameters(), lr=step_size, betas=(beta_1, beta_2),
-                                  weight_decay=weight_decay)
-        elif opt == 'adamW':
-            self.opt = optim.AdamW(self.net.parameters(), lr=step_size, betas=(beta_1, beta_2),
-                                   weight_decay=weight_decay)
-        
-        self.opt_erank = optim.SGD(net.parameters(),
-                                   lr=erank_step_size, weight_decay=weight_decay)
+        if opt == "sgd":
+            self.opt = optim.SGD(
+                self.net.parameters(),
+                lr=step_size,
+                weight_decay=weight_decay,
+                momentum=momentum,
+            )
+        elif opt == "adam":
+            self.opt = optim.Adam(
+                self.net.parameters(),
+                lr=step_size,
+                betas=(beta_1, beta_2),
+                weight_decay=weight_decay,
+            )
+        elif opt == "adamW":
+            self.opt = optim.AdamW(
+                self.net.parameters(),
+                lr=step_size,
+                betas=(beta_1, beta_2),
+                weight_decay=weight_decay,
+            )
+
+        self.opt_erank = optim.SGD(
+            net.parameters(), lr=erank_step_size, weight_decay=weight_decay
+        )
 
         # define the loss function
         self.loss = loss
-        self.loss_func = {'nll': F.cross_entropy, 'mse': F.mse_loss}[self.loss]
+        self.loss_func = {"nll": F.cross_entropy, "mse": F.mse_loss}[self.loss]
 
         # Placeholder
         self.previous_features = None
 
-    def effective_rank_loss(self, feature: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
+    def effective_rank_loss(
+        self, feature: torch.Tensor, eps: float = 1e-8
+    ) -> torch.Tensor:
         """
         Compute the Shannon-entropy effective rank of the spectrum sv.
-        
+
         Args:
         sv: 1D tensor of singular values (non-negative).
         eps: small constant to ensure numerical stability.
@@ -44,7 +73,7 @@ class Backprop(object):
         # 1. Ensure non-negativity & normalize
         sv = torch.linalg.svdvals(feature.T).abs()
         total = sv.sum().clamp(min=eps)
-        p = sv / total            # shape (r,)
+        p = sv / total  # shape (r,)
 
         # 2. Compute entropy: sum p * log(p), but avoid log(0)
         entropy = -(p * torch.log(p + eps)).sum()
@@ -64,17 +93,25 @@ class Backprop(object):
             erank_losses = [self.effective_rank_loss(f) for f in features]
             loss_erank = - torch.stack(erank_losses).mean()
             loss_erank.backward()
+            
+            # Calculate gradient norm
+            grad_norm = 0.0
+            for param in self.net.parameters():
+                if param.grad is not None:
+                    grad_norm += param.grad.data.norm(2).item() ** 2
+            grad_norm = grad_norm ** 0.5
+            
             self.opt_erank.step()
 
-        # return the final erank value (detached)
-        return loss_erank.detach()
+        # return both the final erank value and gradient norm
+        return loss_erank.detach(), grad_norm
 
     def learn(self, x, target):
         """
         Learn using one step of gradient-descent
         :param x: input
         :param target: desired output
-        :return: loss
+        :return: loss, output, gradient norm
         """
         self.opt.zero_grad()
         output, features = self.net.predict(x=x)
@@ -82,17 +119,25 @@ class Backprop(object):
         self.previous_features = features
 
         loss.backward()
+        
+        # Calculate gradient norm
+        grad_norm = 0.0
+        for param in self.net.parameters():
+            if param.grad is not None:
+                grad_norm += param.grad.data.norm(2).item() ** 2
+        grad_norm = grad_norm ** 0.5
+        
         self.opt.step()
         if self.to_perturb:
             self.perturb()
-        if self.loss == 'nll':
-            return loss.detach(), output.detach()
-        return loss.detach()
+        return loss.detach(), output.detach(), grad_norm
 
     def perturb(self):
         with torch.no_grad():
-            for i in range(int(len(self.net.layers)/2)+1):
-                self.net.layers[i * 2].bias +=\
-                    torch.empty(self.net.layers[i * 2].bias.shape, device=self.device).normal_(mean=0, std=self.perturb_scale)
-                self.net.layers[i * 2].weight +=\
-                    torch.empty(self.net.layers[i * 2].weight.shape, device=self.device).normal_(mean=0, std=self.perturb_scale)
+            for i in range(int(len(self.net.layers) / 2) + 1):
+                self.net.layers[i * 2].bias += torch.empty(
+                    self.net.layers[i * 2].bias.shape, device=self.device
+                ).normal_(mean=0, std=self.perturb_scale)
+                self.net.layers[i * 2].weight += torch.empty(
+                    self.net.layers[i * 2].weight.shape, device=self.device
+                ).normal_(mean=0, std=self.perturb_scale)

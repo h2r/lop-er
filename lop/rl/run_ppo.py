@@ -116,6 +116,11 @@ def main():
     cfg.setdefault('util_type_pol', 'contribution')
     cfg.setdefault('pgnt', (cfg['rr']>0) or cfg['redo'])
     cfg.setdefault('vgnt', (cfg['rr']>0) or cfg['redo'])
+    cfg.setdefault('use_er', False)
+    cfg.setdefault('er_batch', 256)
+    cfg.setdefault('er_step', 1)
+    cfg.setdefault('pol_erank_lr', 0.001)
+    cfg.setdefault('val_erank_lr', 0.001)
 
     # Initialize env
     seed = cfg['seed']
@@ -164,7 +169,9 @@ def main():
                   loss_type=cfg['loss_type'], perturb_scale=cfg['perturb_scale'],
                   util_type_val=cfg['util_type_val'], replacement_rate=cfg['rr'], decay_rate=cfg['decay_rate'],
                   vgnt=cfg['vgnt'], pgnt=cfg['pgnt'], util_type_pol=cfg['util_type_pol'], mt=cfg['mt'],
-                  redo=cfg['redo'], threshold=cfg['threshold'], reset_period=cfg['reset_period']
+                  redo=cfg['redo'], threshold=cfg['threshold'], reset_period=cfg['reset_period'], 
+                  use_er=cfg['use_er'], er_batch=cfg['er_batch'], er_step=cfg['er_step'],
+                  pol_erank_lr=cfg['pol_erank_lr'], val_erank_lr=cfg['val_erank_lr']
                   )
 
     to_log = cfg['to_log']
@@ -227,7 +234,7 @@ def main():
     o = env.reset()
     print('start_step:', start_step)
     
-    debugging = False
+    debugging = True
     last_ret_idx = 0
     # Interaction loop
     for step in range(start_step, n_steps):

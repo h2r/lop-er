@@ -48,3 +48,12 @@ class MLPVF(VF, nn.Module):
 
     def get_activations(self,):
         return [self.activations[key] for key in self.feature_keys]
+    
+    def get_differentiable_activations(self, x):
+        """Get activations directly from a batch of observations, maintaining gradient information."""
+        x = x.to(self.device)
+        self.to_log_features = True
+        _ = self.v_net(x)  # This will populate self.activations
+        activations = self.get_activations()
+        self.to_log_features = False
+        return activations

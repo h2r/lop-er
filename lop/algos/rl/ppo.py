@@ -36,6 +36,11 @@ class PPO(Learner):
                  redo=False,
                  threshold=0.03,
                  reset_period=1000,
+                 use_er=False,
+                 er_batch=256,
+                 er_step=10,
+                 pol_erank_lr=0.001,
+                 val_erank_lr=0.001,
                  ):
         self.pol = pol
         self.buf = buf
@@ -56,6 +61,12 @@ class PPO(Learner):
         self.no_clipping = no_clipping
         self.loss_type = loss_type
         self.to_perturb = self.perturb_scale != 0
+
+        self.use_er = use_er
+        self.er_batch = er_batch
+        self.er_step = er_step
+        self.pol_erank_opt = torch.optim.SGD(self.pol.parameters(), lr=pol_erank_lr)
+        self.val_erank_opt = torch.optim.SGD(self.vf.parameters(), lr=val_erank_lr)
 
         """
         Initialize a generate-and-test object for your network
@@ -103,6 +114,55 @@ class PPO(Learner):
             if advs.std() != 0 and not torch.isnan(advs.std()): advs /= advs.std()
         v_rets, advs = v_rets.detach().to(self.device), advs.detach().to(self.device)
         return v_rets.view(-1, 1), advs
+    
+    def effective_rank_loss(self, feature: torch.Tensor, eps: float = 1e-8) -> torch.Tensor:
+        """
+        Compute the Shannon-entropy effective rank of the spectrum sv.
+        
+        Args:
+        sv: 1D tensor of singular values (non-negative).
+        eps: small constant to ensure numerical stability.
+        Returns:
+        scalar tensor: exp( - sum_i p_i * log(p_i) ).
+        """
+        sv = torch.linalg.svdvals(feature.T).abs()
+        total = sv.sum().clamp(min=eps)
+        p = sv / total
+        entropy = -(p * torch.log(p + eps)).sum()
+        return torch.exp(entropy)
+
+    def maximize_effective_rank(self, features, is_policy=True, steps=1):
+        if is_policy:
+            opt = self.opt_pol_erank
+        else:   
+            opt = self.opt_val_erank
+            
+        for i in range(steps):
+            opt.zero_grad()
+            erank_losses = [self.effective_rank_loss(f.to(self.device)) for f in features]
+            loss_erank = - torch.stack(erank_losses).mean()
+            loss_erank.backward()
+
+            if is_policy:
+                # Calculate gradient norm
+                grad_norm = 0.0
+                for param in self.pol.parameters():
+                    if param.grad is not None:
+                        grad_norm += param.grad.data.norm(2).item() ** 2
+                grad_norm = grad_norm ** 0.5
+            else:
+                # Calculate gradient norm
+                grad_norm = 0.0
+                for param in self.vf.parameters():
+                    if param.grad is not None:
+                        grad_norm += param.grad.data.norm(2).item() ** 2
+                grad_norm = grad_norm ** 0.5
+
+            opt.step()
+
+        # return the final erank value (detached)
+        return loss_erank.detach(), grad_norm
+
 
     def learn(self):
         os, acts, rs, op, logpbs, _, dones = self.buf.get(self.pol.dist_stack)
@@ -142,6 +202,22 @@ class PPO(Learner):
                 self.opt.zero_grad()
                 p_loss.backward()
 
+                # Calculate policy network gradient norm
+                pol_grad_norm = 0.0
+                for param in self.pol.parameters():
+                    if param.grad is not None:
+                        pol_grad_norm += param.grad.data.norm(2).item() ** 2
+                pol_grad_norm = pol_grad_norm ** 0.5
+                print(f'Policy network gradient norm: {pol_grad_norm:.4f}')
+
+                # Calculate value network gradient norm  
+                val_grad_norm = 0.0
+                for param in self.vf.parameters():
+                    if param.grad is not None:
+                        val_grad_norm += param.grad.data.norm(2).item() ** 2
+                val_grad_norm = val_grad_norm ** 0.5
+                print(f'Value network gradient norm: {val_grad_norm:.4f}')
+
                 if self.max_grad_norm > 0:
                     nn.utils.clip_grad_norm_(list(self.pol.parameters()) + list(self.vf.parameters()), self.max_grad_norm)
                 self.opt.step()
@@ -164,7 +240,24 @@ class PPO(Learner):
                         elif isinstance(self.pol_gnt, GnTredo):
                             features_history = torch.stack(self.vf.get_activations()).permute(1, 0, 2)
                             self.val_gnt.gen_and_test(features_history=features_history)
+            # er 
+            if self.use_er:
+            # print('Maximizing effective rank')
+            # Effective rank maximization
+                for start in range(0, len(os), self.er_batch):
+                    ind = inds[start:start + self.er_batch]
+                    
+                    # Policy network effective rank maximization
+                    pol_feats = self.pol.get_differentiable_activations(os[ind])
+                    pol_erank, pol_er_grad_norm = self.maximize_effective_rank(pol_feats, is_policy=True, steps=self.er_step)
+                    print(f'Policy network effective rank: {pol_erank:.4f}, gradient norm: {pol_er_grad_norm:.4f}')
+                    
+                    # Value network effective rank maximization  
+                    val_feats = self.vf.get_differentiable_activations(os[ind])
+                    val_erank, val_er_grad_norm = self.maximize_effective_rank(val_feats, is_policy=False, steps=self.er_step)
+                    print(f'Value network effective rank: {val_erank:.4f}, gradient norm: {val_er_grad_norm:.4f}')
 
+        # Calculate gradient norm
         idx, change = 0, 0
         for layer in self.pol.mean_net:
             if type(layer) is torch.nn.modules.linear.Linear:

@@ -81,6 +81,15 @@ class MLPPolicy(Policy, nn.Module):
     def get_activations(self):
         return [self.activations[key] for key in self.feature_keys]
 
+    def get_differentiable_activations(self, x):
+        """Get activations directly from a batch of observations, maintaining gradient information."""
+        x = x.to(self.device)
+        self.to_log_features = True
+        _ = self.mean_net(x)  # This will populate self.activations
+        activations = self.get_activations()
+        self.to_log_features = False
+        return activations
+
     def logp_dist(self, x, a, to_log_features=False):
         dist = self.dist(x, to_log_features=to_log_features)
         lprob = dist.log_prob(torch.as_tensor(a, device=self.device)).sum(1, keepdim=True)

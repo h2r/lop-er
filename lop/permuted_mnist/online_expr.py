@@ -87,6 +87,7 @@ def online_expr(params: {}):
         learner = Backprop(
             net=net,
             step_size=step_size,
+            erank_step_size=params.get('er_lr', 0.001),
             opt=opt,
             loss='nll',
             weight_decay=weight_decay,
@@ -162,12 +163,14 @@ def online_expr(params: {}):
             buffer_x.append(batch_x)
 
             # train the network
-            loss, network_output = learner.learn(x=batch_x, target=batch_y)
+            loss, network_output, acc_grad_norm = learner.learn(x=batch_x, target=batch_y)
 
             if agent_type in ['er'] and (len(buffer_x) % params['er_batch'] == 0):
                 rank_update_data = torch.cat(buffer_x, dim=0)
-                learner.maximize_effective_rank(rank_update_data, steps=params['er_step'])
+                erank, er_grad_norm = learner.maximize_effective_rank(rank_update_data, steps=params['er_step'])
                 buffer_x = []
+
+                print("last gradient norm: ", acc_grad_norm, ", last erank: ", erank, ", last erank grad norm: ", er_grad_norm)
             
             if to_log and agent_type != 'linear':
                 for idx, layer_idx in enumerate(learner.net.layers_to_log):
