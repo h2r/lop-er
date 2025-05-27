@@ -143,20 +143,19 @@ class PPO(Learner):
             loss_erank = - torch.stack(erank_losses).mean()
             loss_erank.backward()
 
-            if is_policy:
-                # Calculate gradient norm
-                grad_norm = 0.0
-                for param in self.pol.parameters():
-                    if param.grad is not None:
-                        grad_norm += param.grad.data.norm(2).item() ** 2
-                grad_norm = grad_norm ** 0.5
-            else:
-                # Calculate gradient norm
-                grad_norm = 0.0
-                for param in self.vf.parameters():
-                    if param.grad is not None:
-                        grad_norm += param.grad.data.norm(2).item() ** 2
-                grad_norm = grad_norm ** 0.5
+            grad_norm = 0.0
+            # if is_policy:
+            #     # Calculate gradient norm
+            #     for param in self.pol.parameters():
+            #         if param.grad is not None:
+            #             grad_norm += param.grad.data.norm(2).item() ** 2
+            #     grad_norm = grad_norm ** 0.5
+            # else:
+            #     # Calculate gradient norm
+            #     for param in self.vf.parameters():
+            #         if param.grad is not None:
+            #             grad_norm += param.grad.data.norm(2).item() ** 2
+            #     grad_norm = grad_norm ** 0.5
 
             opt.step()
 
@@ -202,20 +201,20 @@ class PPO(Learner):
                 self.opt.zero_grad()
                 p_loss.backward()
 
-                # Calculate policy network gradient norm
-                pol_grad_norm = 0.0
-                for param in self.pol.parameters():
-                    if param.grad is not None:
-                        pol_grad_norm += param.grad.data.norm(2).item() ** 2
-                pol_grad_norm = pol_grad_norm ** 0.5
+                # # Calculate policy network gradient norm
+                # pol_grad_norm = 0.0
+                # for param in self.pol.parameters():
+                #     if param.grad is not None:
+                #         pol_grad_norm += param.grad.data.norm(2).item() ** 2
+                # pol_grad_norm = pol_grad_norm ** 0.5
                 # print(f'Policy network gradient norm: {pol_grad_norm:.4f}')
 
-                # Calculate value network gradient norm  
-                val_grad_norm = 0.0
-                for param in self.vf.parameters():
-                    if param.grad is not None:
-                        val_grad_norm += param.grad.data.norm(2).item() ** 2
-                val_grad_norm = val_grad_norm ** 0.5
+                # # Calculate value network gradient norm  
+                # val_grad_norm = 0.0
+                # for param in self.vf.parameters():
+                #     if param.grad is not None:
+                #         val_grad_norm += param.grad.data.norm(2).item() ** 2
+                # val_grad_norm = val_grad_norm ** 0.5
                 # print(f'Value network gradient norm: {val_grad_norm:.4f}')
 
                 if self.max_grad_norm > 0:

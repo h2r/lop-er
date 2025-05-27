@@ -1,0 +1,10 @@
+## SLURM PROLOG ###############################################################
+##    Job ID : 11543325
+##  Job Name : run_sant.sh
+##  Nodelist : gpu2004
+##      CPUs : 1
+##  Mem/Node : 65536 MB
+## Directory : /oscar/home/nhe6/Documents/lop-er/lop/rl
+##   Job Started : Wed May 21 07:05:25 PM EDT 2025
+###############################################################################
+slurmstepd: error: *** JOB 11543325 ON gpu2004 CANCELLED AT 2025-05-21T19:14:07 ***

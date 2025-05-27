@@ -18,8 +18,13 @@ beta_1: 0.99
 beta_2: 0.99
 wd: 1e-3
 
-# to_log: ['pol_features_activity', 'pol_weights', 'val_weights', 'stable_rank']
-# to_log: ['stable_rank']
+use_er: True
+er_batch: 1024
+er_step: 1
+pol_erank_lr: 0.0000001
+val_erank_lr: 0.0000001
+
+to_log: ['pol_features_activity', 'pol_weights', 'val_weights', 'stable_rank']
 frictions_file: 'cfg/frictions'
-dir: 'data/sant/l2/'
-label: 'PPO+L2'
+dir: 'data/sant/er/'
+label: 'PPO+er'

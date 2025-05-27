@@ -76,14 +76,15 @@ def plot_for_one_cfg(cfg, runs, m, ts, color='C0', min_max=False):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--env', required=False, type=str, default='ant')
+    parser.add_argument('--env', required=False, type=str, default='sant')
     parser.add_argument('--all', required=False, type=bool, default=False)
 
     args = parser.parse_args()
     env = args.env
     plot_all = args.all
 
-    cfg_file = f'../cfg/{env}/l2.yml'
+    # cfg_file = f'../cfg/{env}/l2.yml'
+    cfg_file = ''
     cfg_file1 = f'../cfg/{env}/er.yml'
     cfg_file2, cfg_file3 = '', ''
     if plot_all:
@@ -101,7 +102,7 @@ def main():
 
     # num_runs = 30
     num_runs = 1
-    runs = [i + 0 for i in range(0, num_runs)]
+    runs = [i + 2 for i in range(0, num_runs)]
     m = 250 * 1000
     ts = 100 * 1000 * 1000  # This will be overridden by n_steps from config
     
@@ -120,6 +121,9 @@ def main():
         ts = min(ts, 50 * 1000 * 1000)
     if env == 'ant':
         yticks = [0, 2000, 4000, 5500]
+        ts = min(ts, 50 * 1000 * 1000)
+    if env == 'sant':
+        yticks = [0, 2000, 3000, 4000, 5000, 6000]
         ts = min(ts, 50 * 1000 * 1000)
 
     for idx, cfg in enumerate(cfgs):
